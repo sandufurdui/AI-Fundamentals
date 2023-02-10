@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt 
 
-
 def blur_image(image_path, ksize=(10, 10)): 
     image = cv2.imread(image_path)
 
@@ -16,13 +15,8 @@ def blur_image(image_path, ksize=(10, 10)):
     axs[1].set_title('Blurred image')
     plt.show()
     
-# https://www.geeksforgeeks.org/python-opencv-cv2-blur-method/
-
-
-
 def sharpen_image(image_path): 
     image = cv2.imread(image_path)
-
     sharpen_filter = np.array([[-1,-1,-1],
                               [-1,9,-1],
                               [-1,-1,-1]])
@@ -45,9 +39,7 @@ def sharpen_image(image_path):
 def detect_face(image_path):
     cascade_path='haarcascade_frontalface_default.xml' 
     face_cascade = cv2.CascadeClassifier(cascade_path)
-     
     image = cv2.imread(image_path)
-    
     #convert the image to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
@@ -76,8 +68,13 @@ def detect_eyes(imgpath):
     eyes = eyes_cascade.detectMultiScale(gray, 1.1, 4)
 
     if len(eyes) >= 2:
-        return abs(eyes[0][1] - eyes[1][1]) <= 5
+        eye1_center = (eyes[0][2] - eyes[0][0]) / 2
+        eye2_center = (eyes[1][2] - eyes[1][0]) / 2
+
+        if abs(eye1_center - eye2_center) <= 5:
+            return True
     return False
+
 # https://itsourcecode.com/free-projects/opencv/eye-detection-opencv-python-with-source-code/
 
 def has_one_face(image_path):
@@ -108,12 +105,23 @@ def calculate_face_area(image_path):
             return True
     return False
 
+def is_portrait(image_path):
+    image = cv2.imread(image_path)
+    height, width = image.shape[:2]
+    
+    if height == width:
+        return True
+    elif height > width:
+        return True
+    else:
+        return False
+
 def calculate_result(img_path):
-  if calculate_face_area(img_path) and has_one_face(img_path) and detect_eyes(img_path) and not is_gray(img_path):
+  if calculate_face_area(img_path) and is_portrait(img_path) and has_one_face(img_path) and detect_eyes(img_path) and not is_gray(img_path):
     return True
   else:
     return False
 
 
-blur_image("test_images/0AA0A2.jpg")
-sharpen_image("test_images/0AA0A2.jpg")
+# blur_image("test_images/0AA0A2.jpg")
+# sharpen_image("test_images/0AA0A2.jpg")

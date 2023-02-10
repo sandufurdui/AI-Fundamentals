@@ -1,65 +1,69 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import LinearRegression, Ridge
 
-#convert txt to csv
 read_file = pd.read_csv ('apartmentComplexData.txt')
 read_file.to_csv ('apartmentComplexData.csv', index=None)
 
-df = pd.read_csv('apartmentComplexData.csv', usecols=[2, 3, 4, 5, 6, 8])
+file_data = pd.read_csv('apartmentComplexData.csv', usecols=[2, 3, 4, 5, 6, 8])
 
-#rename columns
-df.columns = ['complexAge', 'totalRooms', 'totalBedrooms', 'complexInhabitants', 'apartmentsNr', 'medianCompexValue']
-#replace NaN values with column mean
-df.fillna(df.mean(), inplace=True)
+file_data.columns = ['complexAge', 'totalRooms', 'totalBedrooms', 'complexInhabitants', 'apartmentsNr', 'medianCompexValue']
+file_data = file_data.fillna(0)
+file_data.drop_duplicates()
+# print(file_data)
 
 #split the data into training and testing sets
-X = df[['complexAge', 'totalRooms', 'totalBedrooms', 'complexInhabitants', 'apartmentsNr']]
-y = df['medianCompexValue']
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-#train linear regression model
+X = file_data[['complexAge', 'totalRooms', 'totalBedrooms', 'complexInhabitants', 'apartmentsNr']]
+y = file_data['medianCompexValue']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=10)
+ 
 regressor = LinearRegression()
 regressor.fit(X_train, y_train)
-
-#predict the medianCompexValue for the test set
-regressor_y_pred = regressor.predict(X_test)
-
-#calculate rmse
-mse = mean_squared_error(y_test, regressor_y_pred)
-rmse = np.sqrt(mse)
-print('RMSE: ', rmse)
-#prints: RMSE: 105453.7614875964
-
-#apartament to predict values
-linear_prediction = np.array([[74, 200, 342, 234, 90]])
+linear_prediction = np.array([[52.0, 2491.0, 474.0, 1098.0, 468.0]])
 
 #predicting the apartment using linear regression
 linear_prediction_median_compex_value = regressor.predict(linear_prediction)
 
-print('Predicted medianCompexValue value using linear regression: ', linear_prediction_median_compex_value)
-#prints: Predicted medianCompexValue value using linear regression: 184830.21801261377
+print('Predicted medianCompexValue using linear regression: ', linear_prediction_median_compex_value)
 
-rige_regressor = Ridge(alpha=100)
-rige_regressor.fit(X_train, y_train)
+from sklearn.metrics import r2_score
+regressor_y_pred = regressor.predict(X_test)
+linear_r2 = r2_score(y_test, regressor_y_pred)
 
-#predict using X_test as input 
-ridge_y_pred = rige_regressor.predict(X_test)
+ridge_regressor = Ridge(alpha=10)
+ridge_regressor.fit(X_train, y_train)
 
-#calculate rmse for Ridge
-ridge_mse = mean_squared_error(y_test, ridge_y_pred)
-ridge_rmse = np.sqrt(ridge_mse)
-print('RMSE for Ridge:', ridge_rmse)
-#RMSE for Ridge: 105453.7602732192
+ridge_y_pred = ridge_regressor.predict(X_test)
 
-#apartament to predict values
-ridge_prediction = np.array([[74, 200, 342, 234, 90]])
+ridge_prediction = np.array([[52.0, 2491.0, 474.0, 1098.0, 468.0]])
+ridge_prediction_median_compex_value = ridge_regressor.predict(ridge_prediction)
 
-#predicting the apartment using Ridge
-ridge_prediction_median_compex_value = rige_regressor.predict(ridge_prediction)
+print('Predicted medianCompexValue using Ridge: ', ridge_prediction_median_compex_value) 
 
-print('Predicted medianCompexValue for the new apartment complex using Ridge: ', ridge_prediction_median_compex_value)
-#prints: Predicted medianCompexValue value using Ridge regression: 184827.36920557747
+ridge_r2 = r2_score(y_test, ridge_y_pred)
+print("R2 score for ridge : ",  ridge_r2)
+print("R2 score for linear: ", linear_r2) 
+
+
+
+mean_values = file_data.mean() 
+median_values = file_data.median()
+std_deviation = file_data.std()
+
+print("mean ",mean_values)
+print("median ",median_values)
+print("deviation ",std_deviation)
+import matplotlib.pyplot as plt
+file_data[['complexAge', 'totalRooms', 'totalBedrooms', 'complexInhabitants', 'apartmentsNr']].plot()
+file_data[['medianCompexValue']].plot()
+# plt.show()
+import pandas as pd 
+
+mean_rounded = mean_values.round(2)
+median_rounded = median_values.round(2)
+std_rounded = std_deviation.round(2)
+ 
+data = pd.DataFrame({'Mean': mean_rounded, 'Median': median_rounded, 'Standard Deviation': std_rounded})
+ 
+print(data)

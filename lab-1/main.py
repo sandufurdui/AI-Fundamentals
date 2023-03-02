@@ -58,16 +58,12 @@ while True:
                 tourist_found = True
                 if 'mexican tourist' or 'is a turkish tourist' or 'chinesse tourist' or 'naughty black tourist' or 'educated black tourist' in item:
                     print(item)
-                elif 'is a tourist' in item:
-                    print(item)
-                    print(name, ' is a loonie')
-                else:
-                    print(name, ' is a loonie')
-        if not tourist_found:
+        else:
             print('It is not a tourist')
+  
 
     else:
-        from backchain import backward_chain
+        from backchain import backchain_to_goal_tree
         tourist_types = {
             "educated black": '(?y) is an educated black tourist',
             "naughty black": '(?y) is a naughty black tourist',
@@ -75,10 +71,9 @@ while True:
             "turkish": '(?y) is a turkish tourist',
             "mexican": '(?y) is a mexican tourist'
         }
-        tourist_type = input('What type of tourist are you? ')
-        print(tourist_type)
-        hypothesis = tourist_types[tourist_type.lower()]
-        result = backward_chain(rules.RULES, hypothesis)
+        tourist_type = input('What type of tourist are you? ') 
+        hypothesis = tourist_types[tourist_type.lower()] 
+        result = backchain_to_goal_tree(rules.RULES, hypothesis)
         print(result)
 
     answers = []

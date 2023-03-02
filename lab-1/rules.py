@@ -43,8 +43,6 @@ class Tree:
     def __str__(self):
         return str(self.cargo)
 
-
-
 tree = Tree('{0} has backpack and camera', 
             Tree('{0} knows who his father is', 
                 Tree('{0} has bachelor')

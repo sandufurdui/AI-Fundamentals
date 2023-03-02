@@ -1,63 +1,61 @@
-import math
+# import numpy as np
+# from boid import Boid
+# import matplotlib.pyplot as plt
+# import matplotlib.animation as animation
 
-class Vector:
-    def __init__(self, *args):
-        self.values = args
+# width = 1000
+# height = 1000
 
-    def norm(self):
-        return math.sqrt(sum(i**2 for i in self.values))
+# flock = [Boid(*np.random.rand(2)*1000, width, height) for _ in range(50)]
 
-    def __add__(self, other):
-        if len(self.values) != len(other.values):
-            raise ValueError("Both vectors must have the same number of elements")
-        return Vector(*(x + y for x, y in zip(self.values, other.values)))
+# fig, ax = plt.subplots()
 
-    def __sub__(self, other):
-        if len(self.values) != len(other.values):
-            raise ValueError("Both vectors must have the same number of elements")
-        return Vector(*(x - y for x, y in zip(self.values, other.values)))
+# def update(frame):
+#     global flock
+#     ax.clear()
+#     ax.set_xlim(0, width)
+#     ax.set_ylim(0, height)
+    
+#     for boid in flock:
+#         boid.edges()
+#         boid.apply_behaviour(flock)
+#         boid.update()
+#         ax.scatter(boid.position[0], boid.position[1])
 
-    def __mul__(self, scalar):
-        return Vector(*(x * scalar for x in self.values))
+# ani = animation.FuncAnimation(fig, update, frames=None, interval=10)
+# plt.show()
 
-    def __truediv__(self, scalar):
-        return Vector(*(x / scalar for x in self.values))
+import numpy as np
+from boid import Boid
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
-    def dot(self, other):
-        if len(self.values) != len(other.values):
-            raise ValueError("Both vectors must have the same number of elements")
-        return sum(x * y for x, y in zip(self.values, other.values))
+width = 1000
+height = 1000
 
-    def cross(self, other):
-        if len(self.values) != 3 or len(other.values) != 3:
-            raise ValueError("Both vectors must have 3 elements")
-        return Vector(
-            self.values[1] * other.values[2] - self.values[2] * other.values[1],
-            self.values[2] * other.values[0] - self.values[0] * other.values[2],
-            self.values[0] * other.values[1] - self.values[1] * other.values[0]
-        )
+flock = [Boid(*np.random.rand(2)*1000, width, height) for _ in range(50)]
 
+fig, ax = plt.subplots()
 
-v1 = Vector(1, 2, 3)
-print(v1.norm())
-v2 = Vector(2, 3, 4)
-v3 = v1 + v2
-print(v3.values) # Output: (3, 5, 7)
+# Create an empty line object to hold the boid positions
+line, = ax.plot([], [], 'o', markersize=3)
+def update(frame):
+    global flock
+    ax.set_xlim(0, width)
+    ax.set_ylim(0, height)
 
-v3 = v1 - v2
-print(v3.values) # Output: (-1, -1, -1)
+    # Update the positions of all the boids
+    positions = np.array([boid.position for boid in flock])
 
-v2 = v1 * 2
-print(v2.values) # Output: (2, 4, 6)
+    for boid in flock:
+        boid.edges()
+        boid.apply_behaviour(flock)
+        boid.update()
 
-v2 = v1 / 2
-print(v2.values) # Output: (0.5, 1.0, 1.5)
+    # Update the line object with the new positions
+    line.set_data(positions[:, 0], positions[:, 1])
 
+    return line,
 
-v1 = Vector(1, 2, 3)
-v2 = Vector(2, 3, 4)
-result = v1.dot(v2)
-print(result) # Output: 20
-
-v3 = v1.cross(v2)
-print(v3.values) # Output: (-1, 2, -1)
+ani = animation.FuncAnimation(fig, update, frames=None, interval=10, blit=True)
+plt.show()
